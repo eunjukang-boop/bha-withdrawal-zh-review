@@ -1,0 +1,403 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Chinese Translation Review</title><style>
+  :root{
+    --bg:#F7F6FB; --surface:#FFFFFF; --surface-alt:#F1EFF8; --border:#E3DFF2;
+    --ink:#221F35; --muted:#8B87A6; --faint:#B3AFCB;
+    --accent:#655FA3; --accent-strong:#4E4880; --accent-soft:#EFEDFA;
+    --edited:#0F7A6C; --edited-bg:#E3F5F1; --edited-border:#9CD9CC;
+    --shadow: 0 1px 2px rgba(76,66,120,.06), 0 8px 24px -12px rgba(76,66,120,.18);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#161320; --surface:#1E1B2B; --surface-alt:#252137; --border:#3A3450;
+      --ink:#EDEAF7; --muted:#A39DC4; --faint:#6D6790;
+      --accent:#9A92DE; --accent-strong:#C1BBEE; --accent-soft:#282442;
+      --edited:#4FCDB8; --edited-bg:#163530; --edited-border:#2C5E55;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#161320; --surface:#1E1B2B; --surface-alt:#252137; --border:#3A3450;
+    --ink:#EDEAF7; --muted:#A39DC4; --faint:#6D6790;
+    --accent:#9A92DE; --accent-strong:#C1BBEE; --accent-soft:#282442;
+    --edited:#4FCDB8; --edited-bg:#163530; --edited-border:#2C5E55;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Franklin Gothic Medium","Franklin Gothic",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    display:flex; flex-direction:column;
+  }
+  .zh{ font-family:"Franklin Gothic Medium","Franklin Gothic","PingFang SC","Microsoft YaHei",Arial,sans-serif; }
+  .mono{ font-variant-numeric: tabular-nums; font-family: ui-monospace, "SF Mono", Consolas, monospace; }
+
+  /* ── Header ── */
+  header{
+    background:linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+    padding:22px 24px 18px; color:#fff; flex-shrink:0;
+  }
+  .hd-row{ max-width:960px; margin:0 auto; display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+  .hd-title{ font-size:19px; font-weight:700; margin:0 0 4px; letter-spacing:.2px; }
+  .hd-sub{ font-size:12.5px; color:rgba(255,255,255,.82); margin:0; line-height:1.6; max-width:56ch; }
+  .hd-progress{ text-align:right; flex-shrink:0; }
+  .hd-progress .num{ font-size:24px; font-weight:700; }
+  .hd-progress .lbl{ font-size:10.5px; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,.75); margin-top:2px; }
+  .clear-link{ font-size:11px; color:rgba(255,255,255,.7); text-decoration:underline; cursor:pointer; margin-top:8px; }
+  .clear-link:hover{ color:#fff; }
+  .restore-banner{
+    max-width:960px; margin:12px auto 0; padding:9px 14px; border-radius:8px;
+    background:rgba(255,255,255,.16); color:#fff; font-size:12px; display:none;
+  }
+  .restore-banner.show{ display:block; }
+
+  /* ── Step tabs ── */
+  nav.steps{
+    position:sticky; top:0; z-index:5;
+    background:var(--surface); border-bottom:1px solid var(--border);
+    display:flex; gap:4px; overflow-x:auto; padding:8px 16px;
+    scrollbar-width:thin;
+  }
+  nav.steps::-webkit-scrollbar{ height:5px; }
+  nav.steps::-webkit-scrollbar-thumb{ background:var(--border); border-radius:4px; }
+  .step-tab{
+    flex-shrink:0; display:flex; align-items:center; gap:6px;
+    padding:8px 13px; border-radius:8px; border:1px solid transparent;
+    font-size:12.5px; font-weight:600; color:var(--muted); cursor:pointer;
+    white-space:nowrap; background:transparent; transition:background .12s, color .12s;
+  }
+  .step-tab:hover{ background:var(--surface-alt); color:var(--ink); }
+  .step-tab.active{ background:var(--accent-soft); color:var(--accent-strong); border-color:var(--border); }
+  .step-tab .badge{
+    font-size:10px; font-weight:700; padding:1px 6px; border-radius:999px;
+    background:var(--edited-bg); color:var(--edited); min-width:16px; text-align:center;
+  }
+
+  /* ── Main ── */
+  main{ flex:1; max-width:760px; width:100%; margin:0 auto; padding:24px 20px 140px; }
+  .step-heading{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:4px; gap:12px; }
+  .step-heading h2{ font-size:16px; margin:0; font-weight:700; }
+  .step-count{ font-size:12px; color:var(--muted); white-space:nowrap; }
+  .step-note{ font-size:12px; color:var(--muted); margin:0 0 20px; line-height:1.6; }
+
+  .card{
+    background:var(--surface); border:1px solid var(--border); border-radius:10px;
+    padding:14px 16px 14px 14px; margin-bottom:10px;
+    display:flex; gap:12px; box-shadow:var(--shadow);
+    position:relative; transition:border-color .15s;
+  }
+  .card .rail{ width:3px; border-radius:3px; background:var(--border); flex-shrink:0; align-self:stretch; transition:background .15s; }
+  .card.edited .rail{ background:var(--edited); }
+  .card.edited{ border-color:var(--edited-border); }
+  .card-body{ flex:1; min-width:0; }
+  .ref-en{ font-size:13.5px; color:var(--ink); line-height:1.55; margin:0 0 9px; }
+  .zh-row{ display:flex; align-items:flex-start; gap:8px; }
+  .zh-input{
+    flex:1; min-width:0; resize:none; overflow:hidden;
+    border:1px solid transparent; border-radius:7px; background:var(--surface-alt);
+    color:var(--ink); font-size:15px; line-height:1.6; padding:8px 10px;
+    outline:none; transition:border-color .12s, background .12s;
+  }
+  .zh-input:focus{ border-color:var(--accent); background:var(--surface); }
+  .card.edited .zh-input{ background:var(--edited-bg); }
+  .reset-btn{
+    flex-shrink:0; width:26px; height:26px; border-radius:6px; border:1px solid var(--border);
+    background:var(--surface); color:var(--muted); cursor:pointer; font-size:13px;
+    display:flex; align-items:center; justify-content:center; visibility:hidden; margin-top:8px;
+  }
+  .card.edited .reset-btn{ visibility:visible; }
+  .reset-btn:hover{ color:var(--edited); border-color:var(--edited-border); }
+
+  /* ── Bottom bar ── */
+  .bottombar{
+    position:fixed; bottom:0; left:0; right:0; z-index:6;
+    background:var(--surface); border-top:1px solid var(--border);
+    padding:12px 20px; display:flex; align-items:center; justify-content:center; gap:14px;
+    box-shadow:0 -6px 20px -10px rgba(0,0,0,.15);
+  }
+  .bb-inner{ max-width:760px; width:100%; display:flex; align-items:center; gap:12px; }
+  .bb-nav{
+    display:flex; align-items:center; gap:8px; flex-shrink:0;
+  }
+  .btn{
+    border:1px solid var(--border); background:var(--surface); color:var(--ink);
+    border-radius:7px; padding:9px 14px; font-size:12.5px; font-weight:600; cursor:pointer;
+    font-family:inherit;
+  }
+  .btn:hover{ background:var(--surface-alt); }
+  .btn:disabled{ opacity:.4; cursor:not-allowed; }
+  .btn.primary{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  .btn.primary:hover{ background:var(--accent-strong); border-color:var(--accent-strong); }
+  .bb-status{ flex:1; text-align:center; font-size:12px; color:var(--muted); }
+  .bb-status b{ color:var(--edited); }
+
+  /* ── Copy modal ── */
+  .overlay{
+    position:fixed; inset:0; background:rgba(20,16,32,.55); z-index:20;
+    display:none; align-items:center; justify-content:center; padding:24px;
+  }
+  .overlay.show{ display:flex; }
+  .modal{
+    background:var(--surface); border-radius:12px; max-width:640px; width:100%;
+    max-height:80vh; display:flex; flex-direction:column; box-shadow:var(--shadow);
+    border:1px solid var(--border);
+  }
+  .modal-hd{ padding:18px 22px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+  .modal-hd h3{ margin:0; font-size:15px; }
+  .modal-close{ background:none; border:none; font-size:18px; color:var(--muted); cursor:pointer; line-height:1; }
+  .modal-body{ padding:16px 22px; overflow-y:auto; }
+  .modal-body textarea{
+    width:100%; height:280px; border:1px solid var(--border); border-radius:8px;
+    background:var(--surface-alt); color:var(--ink); font-family:ui-monospace,Consolas,monospace;
+    font-size:12px; line-height:1.6; padding:12px; resize:vertical;
+  }
+  .modal-hint{ font-size:11.5px; color:var(--muted); margin:0 0 10px; }
+  .modal-ft{ padding:14px 22px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:8px; }
+  .copied-flag{ font-size:12px; color:var(--edited); font-weight:700; opacity:0; transition:opacity .2s; }
+  .copied-flag.show{ opacity:1; }
+
+  .empty-state{ text-align:center; color:var(--muted); font-size:13px; padding:40px 0; }
+</style></head><body>
+
+<header>
+  <div class="hd-row">
+    <div>
+      <p class="hd-title">🀄 Chinese Translation Review</p>
+      <p class="hd-sub">This page collects every Chinese phrase shown on the Branksome Hall Asia online withdrawal application, grouped by screen. The English text is shown for reference. If any Chinese phrase sounds off or is incorrect, click into the Chinese box below and edit it directly.</p>
+    </div>
+    <div class="hd-progress">
+      <div class="num mono"><span id="editedCount">0</span></div>
+      <div class="lbl">Edited</div>
+      <div class="clear-link" id="clearLink">Clear saved progress</div>
+    </div>
+  </div>
+  <p class="restore-banner" id="restoreBanner"></p>
+</header>
+
+<nav class="steps" id="stepNav"></nav>
+
+<main>
+  <div class="step-heading">
+    <h2 id="stepTitle"></h2>
+    <span class="step-count mono" id="stepCount"></span>
+  </div>
+  <p class="step-note" id="stepNote"></p>
+  <div id="cardList"></div>
+</main>
+
+<div class="bottombar">
+  <div class="bb-inner">
+    <div class="bb-nav">
+      <button class="btn" id="prevBtn">← Previous</button>
+      <button class="btn" id="nextBtn">Next →</button>
+    </div>
+    <div class="bb-status" id="bbStatus"></div>
+    <button class="btn primary" id="copyBtn">Copy Suggested Edits</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-hd">
+      <h3>Suggested Edits</h3>
+      <button class="modal-close" id="closeModal">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-hint" id="modalHint"></p>
+      <textarea id="resultText" readonly></textarea>
+    </div>
+    <div class="modal-ft">
+      <span class="copied-flag" id="copiedFlag">✓ Copied to clipboard</span>
+      <button class="btn primary" id="copyToClipboard">Copy to Clipboard</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var STEPS = [{"key":"intro","title":"0. Intro & Start Screen","items":[{"ko":"Branksome Hall Asia 퇴교 신청서","zh":"Branksome Hall Asia 退学申请","en":"Branksome Hall Asia Withdrawal Application","pos":86868,"src":"attr"},{"ko":"📋 신청 방법 안내","zh":"📋 申请指南","en":"📋 How to Apply","pos":87380,"src":"attr"},{"ko":"* 표시는 필수 항목입니다.","zh":"标有 * 的为必填项。","en":"* Fields marked with * are required.","pos":87768,"src":"attr"},{"ko":"학교 등록 이메일","zh":"学校注册邮箱","en":"Registered Email","pos":88051,"src":"attr"},{"ko":"이메일 인증 및 학생 선택","zh":"邮箱验证及选择学生","en":"Verification &amp; Student Selection","pos":134210,"src":"attr"},{"ko":"학교 시스템에 등록된 학부모/보호자 또는 학생 이메일로 인증 후 학생을 선택하고 연락처를 확인합니다.","zh":"使用学校注册邮箱验证后，选择学生并确认家长联系方式。","en":"Enter the parent/guardian or student email registered in the school system and click [Send Code]. After verification, select the student and confirm parent contact details.","pos":134415,"src":"attr"},{"ko":"퇴교 예정일 및 사유","zh":"退学日期及原因","en":"Withdrawal Date &amp; Reason","pos":135186,"src":"attr"},{"ko":"퇴교 예정일을 입력합니다 (입력란 상단의 현재 학사연도 재학 가능 기간 안내를 먼저 확인해 주세요). 향후 진로(Q1)와 퇴교의 주된 이유(Q2)를 선택하면 관련 세부 요인(Q3)이 자동으로 표시됩니다.","zh":"填写预计退学日期（请先查看日期栏上方关于本学年在读期限的说明）。选择未来方向（Q1）和主要原因（Q2）后，具体因素（Q3）将自动显示。","en":"Enter the expected withdrawal date (check the current-academic-year enrollment notice shown above the date field first). Select the next educational path (Q1) and the main reason for withdrawal (Q2) — specific sub-factors (Q3) will then appear automatically.","pos":135375,"src":"attr"},{"ko":"환불 신청 정보","zh":"退款申请信息","en":"Refund Application","pos":136387,"src":"attr"},{"ko":"이미 납부하신 학비 중 환불을 신청하실지 선택합니다. '네'를 선택하시면 환불 정책 및 추가 안내사항(도서관·IT·스쿨버스·급식·BHX Program 환불 문의처)이 표시되며, 계좌 구분(국내/해외)을 선택한 뒤 계좌 정보(은행명, 계좌번호, 예금주명 등)를 입력합니다.","zh":"选择是否希望申请退还已缴纳的学费。若选择'是'，将显示退款政策及附加说明（图书馆、IT、校车、餐费及BHX Program退款联系方式），请选择账户类型（国内/海外），并填写银行账户信息（银行名称、账号、账户持有人姓名等）。","en":"Select whether you would like a refund for tuition already paid. If yes, read the refund policy and additional notices (library, IT, bus, meal and BHX Program refund contacts), select your account type (Domestic/Foreign), and provide the bank account information (bank name, account number, account holder's name, etc.).","pos":136559,"src":"attr"},{"ko":"추가 설문 (선택사항)","zh":"补充问卷（选填）","en":"Additional Survey (Optional)","pos":137754,"src":"attr"},{"ko":"전학 학교 선택 이유 최대 3개(Q4), BHA 개선 희망 항목(Q5), BHA 만족점과 개선점(Q6, Q7)을 작성합니다. 모두 선택사항입니다.","zh":"最多选3项选择下一所学校的原因（Q4）、BHA改进项目（Q5）及满意与建议（Q6、Q7），均为选填。","en":"Select up to 3 reasons for choosing the next school (Q4), areas BHA could improve (Q5), and share your appreciation and suggestions (Q6, Q7). All optional.","pos":137946,"src":"attr"},{"ko":"전학 예정 학교 정보","zh":"转学学校信息","en":"Transfer School Information","pos":138774,"src":"attr"},{"ko":"전학 예정 학교를 영어로 검색하세요 (예: NLCS, SJA, KIS). 지역과 도시는 자동 입력됩니다. 목록에 없으면 [직접 입력]을 클릭하여 직접 입력할 수 있습니다.","zh":"用英文搜索转学学校（如NLCS、SJA、KIS）。地区和城市自动填写。不在列表中可点击[直接输入]手动填写。","en":"Search for the next school in English (e.g. NLCS, SJA, KIS). Location and city auto-fill. If not listed, click [Enter manually] to type school name, location and city directly.","pos":138961,"src":"attr"},{"ko":"동의 및 제출","zh":"同意并提交","en":"Consent &amp; Submit","pos":139842,"src":"attr"},{"ko":"동의 내용을 확인하고 체크 후 [제출하기]를 클릭합니다. 학부모 이메일로 접수 확인 메일이 자동 발송됩니다.","zh":"阅读并勾选同意条款，点击[提交]。确认邮件将自动发送至家长邮箱。","en":"Read the consent statement, check the agreement box, and click [Submit]. A confirmation email will be sent to the parent email address.","pos":140013,"src":"attr"},{"ko":"📌 유의사항","zh":"📌 注意事项","en":"📌 Notes","pos":140620,"src":"attr"},{"ko":"자녀가 2명 이상인 경우 개별 제출해 주세요.","zh":"如有2名以上子女，请分别提交。","en":"For 2 or more children, submit separately for each child.","pos":140828,"src":"attr"},{"ko":"링크가 열리지 않으면 시크릿/개인 모드로 열어보세요.","zh":"如果链接无法打开，请尝试使用无痕/隐私模式。","en":"If you cannot access the link, try opening it in incognito/private mode.","pos":141004,"src":"attr"},{"ko":"제출 후에는 접수 확인 메일에 포함된 Track 링크로 결재 진행 상황을 언제든지 확인하실 수 있습니다.","zh":"提交后，您可以随时通过确认邮件中的Track链接查看审批进度。","en":"After submitting, you can check the approval progress anytime using the Track link included in your confirmation email.","pos":141210,"src":"attr"},{"ko":"제출 후 마음이 바뀌신 경우, 동일한 학생 선택 화면 또는 Track 페이지에서 퇴교 신청 취소를 요청하실 수 있습니다.","zh":"提交后改变主意？您可以在同一学生选择页面或Track页面申请取消退学。","en":"Changed your mind after submitting? You can request cancellation from the same student-selection screen, or from the Track page.","pos":141530,"src":"attr"},{"ko":"문의: studentrecord@branksome.asia","zh":"如有疑问请联系：studentrecord@branksome.asia","en":"Questions? Contact: studentrecord@branksome.asia","pos":141881,"src":"attr"},{"ko":"닫기","zh":"关闭","en":"Close","pos":142276,"src":"attr"}]},{"key":"verify","title":"1. Email / Student ID Verification","items":[{"ko":"학교 시스템에 등록된 학부모/가디언 또는 학생 이메일로 인증을 진행해 주세요.","zh":"请使用在学校系统中注册的家长/监护人或学生邮箱进行验证。","en":"Please verify using the parent's/guardian's or student's email account registered in the school system.","pos":88185,"src":"attr"},{"ko":"인증코드 발송","zh":"发送验证码","en":"Send Code","pos":88777,"src":"attr"},{"ko":"인증코드 (6자리)","zh":"验证码（6位）","en":"Verification Code (6 digits)","pos":89079,"src":"attr"},{"ko":"확인","zh":"验证","en":"Verify","pos":89542,"src":"attr"},{"ko":"10분 내 유효합니다. 스팸함도 확인해 주세요.","zh":"10分钟内有效，请检查垃圾邮件。","en":"Valid for 10 minutes. Check spam folder.","pos":89631,"src":"attr"},{"ko":"코드를 못 받으셨나요? 학번으로 인증하기 →","zh":"未收到验证码？改用学号验证 →","en":"No code? Verify with Student ID →","pos":89973,"src":"attr"},{"ko":"학번과 생년월일을 입력하시면 학교에 등록된 이메일로 인증코드를 발송해 드립니다.","zh":"请输入学号和出生日期，验证码将发送至学校注册的电子邮件。","en":"Enter your student ID and date of birth. A verification code will be sent to the registered email.","pos":90401,"src":"attr"},{"ko":"학번 (5자리)","zh":"学号（5位）","en":"Student ID (5 digits)","pos":90738,"src":"attr"},{"ko":"생년월일","zh":"出生日期","en":"Date of Birth","pos":91021,"src":"attr"},{"ko":"학생 선택","zh":"选择学生","en":"Select Student","pos":92766,"src":"attr"},{"ko":"-- 학생을 선택하세요 --","zh":"-- 请选择学生 --","en":"-- Select a student --","pos":92955,"src":"attr"},{"ko":"이메일을 입력해 주세요.","zh":"请输入邮箱地址。","en":"Please enter your email.","pos":150371,"src":"inline"},{"ko":"발송 중...","zh":"发送中...","en":"Sending...","pos":150578,"src":"inline"},{"ko":"인증코드가 발송되었습니다. 이메일을 확인해 주세요.","zh":"验证码已发送，请查收邮件。","en":"Code sent! Check your email.","pos":150781,"src":"inline"},{"ko":"재발송","zh":"重新发送","en":"Resend","pos":151068,"src":"inline"},{"ko":"등록되지 않은 이메일입니다.","zh":"该邮箱未注册。","en":"Email not registered.","pos":151257,"src":"inline"},{"ko":"학번으로 인증하기 →","zh":"改用学号验证 →","en":"Verify with Student ID →","pos":151431,"src":"inline"},{"ko":"발송에 실패했습니다. 다시 시도해 주세요.","zh":"发送失败，请重试。","en":"Failed. Please try again.","pos":151733,"src":"inline"},{"ko":"신청 가능한 학생이 없습니다. New/Returning/Withdrawn/Hold 상태의 학생만 신청 가능합니다.","zh":"未找到符合条件的学生，仅 New/Returning/Withdrawn/Hold 状态学生可提交退学申请。","en":"No eligible students found. Only active students (New/Returning/Withdrawn/Hold) can submit a withdrawal application.","pos":152900,"src":"inline"},{"ko":"인증 완료!","zh":"验证成功！","en":"Verified!","pos":153329,"src":"inline"},{"ko":"인증코드가 올바르지 않습니다.","zh":"验证码不正确。","en":"Incorrect code.","pos":153651,"src":"inline"},{"ko":"인증코드가 만료되었습니다. 재발송해 주세요.","zh":"验证码已过期，请重新发送。","en":"Code expired. Please resend.","pos":153724,"src":"inline"},{"ko":"학번과 생년월일을 모두 입력해 주세요.","zh":"请填写所有字段。","en":"Please enter both fields.","pos":154465,"src":"inline"},{"ko":"발송 중...","zh":"发送中…","en":"Sending...","pos":154691,"src":"inline"},{"ko":"인증코드를 ","zh":"验证码已发送至 ","en":"A verification code has been sent to ","pos":155038,"src":"inline"},{"ko":"(으)로 발송했습니다.","zh":"。","en":".","pos":155140,"src":"inline"},{"ko":"확인 중...","zh":"验证中…","en":"Verifying...","pos":156564,"src":"inline"}]},{"key":"select","title":"1-2. Student Selection","items":[{"ko":"기존 신청 내역 조회중...","zh":"正在查询现有申请...","en":"Checking existing applications...","pos":93524,"src":"attr"},{"ko":"↺ 처음으로 돌아가기","zh":"↺ 重新开始","en":"↺ Start over","pos":93831,"src":"attr"},{"ko":"2. 학부모 정보","zh":"2. 家长信息","en":"2. Parent/Guardian Information","pos":94389,"src":"attr"},{"ko":"-- 선택 --","zh":"-- 请选择 --","en":"-- Select --","pos":145275,"src":"inline"},{"ko":"수정하기","zh":"修改申请","en":"Edit Application","pos":146303,"src":"inline"},{"ko":"퇴교 신청 취소하기","zh":"申请取消退学","en":"Request Cancellation","pos":146767,"src":"inline"},{"ko":"퇴교 신청 취소 요청이 접수되었습니다.","zh":"退学申请取消请求已提交。","en":"Your withdrawal cancellation request has been submitted.","pos":147641,"src":"inline"},{"ko":"신청서 수정이 완료되었습니다.","zh":"申请已修改完成。","en":"Your application has been updated.","pos":147853,"src":"inline"},{"ko":"인증 중입니다. 잠시만 기다려 주세요...","zh":"验证中，请稍候...","en":"Verifying, please wait...","pos":152524,"src":"inline"},{"ko":"신청 가능한 상태의 학생이 아닙니다. New/Returning/Withdrawn/Hold 상태만 신청 가능합니다.","zh":"该学生不符合申请条件。","en":"This student is not eligible.","pos":155324,"src":"inline"},{"ko":"등록된 이메일이 없습니다. 학교에 문의해 주세요.","zh":"未找到注册邮箱，请联系学校。","en":"No registered email found. Please contact the school.","pos":155606,"src":"inline"},{"ko":"학번 또는 생년월일이 일치하지 않습니다.","zh":"学号或出生日期不匹配。","en":"ID or date of birth does not match.","pos":155851,"src":"inline"},{"ko":"인증코드를 입력해 주세요.","zh":"请输入验证码。","en":"Please enter the verification code.","pos":156371,"src":"inline"},{"ko":"인증코드가 만료되었습니다. 다시 시도해 주세요.","zh":"验证码已过期，请重试。","en":"Code expired. Please go back and try again.","pos":157376,"src":"inline"},{"ko":"학번","zh":"学号","en":"ID","pos":159236,"src":"inline"},{"ko":"재학상태","zh":"状态","en":"Status","pos":159305,"src":"inline"},{"ko":"재학중","zh":"在读","en":"Enrolled","pos":159378,"src":"inline"},{"ko":"입학일","zh":"入学日期","en":"Enrol Date","pos":159477,"src":"inline"},{"ko":"담임","zh":"班主任","en":"Homeroom","pos":159577,"src":"inline"},{"ko":" 이미 취소 신청이 접수되어 결재가 진행 중입니다.","zh":" 该申请的取消请求正在审核中。","en":" A cancellation request for this application is already being reviewed.","pos":160518,"src":"inline"},{"ko":" 이전 취소 신청은 승인되지 않았습니다. 담당 School Office로 문의해 주세요.","zh":" 之前的取消请求未获批准。请联系您的school office。","en":" A previous cancellation request was not approved. Please contact your school office for further assistance.","pos":161117,"src":"inline"},{"ko":" 문의: studentrecord@branksome.asia","zh":" 如有疑问请联系 studentrecord@branksome.asia","en":" Please contact studentrecord@branksome.asia for assistance.","pos":161397,"src":"inline"},{"ko":"학생을 먼저 선택해 주세요.","zh":"请先选择学生。","en":"Please select a student first.","pos":181600,"src":"inline"},{"ko":"해당 학생의 퇴교 신청서가 이미 접수되어 있습니다. 새로고침 후 다시 확인해 주세요.","zh":"该学生的退学申请已存在。请刷新页面后重新确认。","en":"An active withdrawal application already exists for this student. Please refresh and check before submitting again.","pos":187119,"src":"inline"}]},{"key":"parent","title":"2. Parent/Guardian Information","items":[{"ko":"인증하신 이메일에 등록된 정보가 자동으로 입력됩니다.","zh":"将根据验证的邮箱自动填写。","en":"Auto-filled from your verified email.","pos":94518,"src":"attr"},{"ko":"학부모 성함","zh":"家长姓名","en":"Name","pos":95802,"src":"attr"},{"ko":"연락처","zh":"联系电话","en":"Phone","pos":96032,"src":"attr"},{"ko":"이메일 주소","zh":"电子邮件","en":"Email","pos":96266,"src":"attr"},{"ko":"3. 퇴교 질문지","zh":"3. 退学问卷","en":"3. Exit Survey","pos":96469,"src":"attr"}]},{"key":"survey","title":"3. Exit Survey","items":[{"ko":"퇴교 예정일","zh":"预计退学日期","en":"Expected Withdrawal Date","pos":96635,"src":"attr"},{"ko":"학생의 향후 진로는 무엇입니까?","zh":"学生下一步的教育计划是什么？","en":"What is the student's next educational path?","pos":96930,"src":"attr"},{"ko":"국내 국제학교로 전학","zh":"转入国内国际学校","en":"Transfer to a domestic international school","pos":97260,"src":"attr"},{"ko":"국내 일반학교(공립/사립)로 전학","zh":"转入韩国学校（公立/私立）","en":"Transfer to a Korean school (public/private)","pos":97473,"src":"attr"},{"ko":"본국으로 귀국 / 해외 이주 (유학/이민)","zh":"回国/移居海外（留学/移民）","en":"Return to home country / overseas relocation (study/immigration)","pos":97714,"src":"attr"},{"ko":"홈스쿨링 또는 기타 교육과정","zh":"在家教育或其他教育方式","en":"Homeschooling or alternative education","pos":97990,"src":"attr"},{"ko":"미정","zh":"尚未确定","en":"Undecided","pos":98193,"src":"attr"},{"ko":"BHA 퇴교를 결정하게 된 가장 큰 이유는 무엇입니까?","zh":"做出退学决定的最主要原因是什么？","en":"What is the main reason for this withdrawal decision?","pos":98373,"src":"attr"},{"ko":"가족 거주지 이동 또는 가족 동거 필요","zh":"家庭搬迁或需要家庭同住","en":"Family relocation or need to live together","pos":98783,"src":"attr"},{"ko":"해외 이주 또는 해외 진학","zh":"移居海外或出国留学","en":"Overseas relocation or study abroad","pos":99062,"src":"attr"},{"ko":"학업·교육과정 관련 이유","zh":"学业或课程相关原因","en":"Academic or curriculum-related reasons","pos":99305,"src":"attr"},{"ko":"영어 사용 환경 관련 이유","zh":"英语使用环境相关原因","en":"English-speaking environment","pos":99556,"src":"attr"},{"ko":"학교 운영·교육환경 관련 이유","zh":"学校管理或教育环境相关原因","en":"School management or environment","pos":99803,"src":"attr"},{"ko":"또래관계·학교생활 관련 이유","zh":"同伴关系或学校生活相关原因","en":"Peer relations or school life","pos":100058,"src":"attr"},{"ko":"건강 또는 의료 관련 이유","zh":"健康或医疗相关原因","en":"Health or medical reasons","pos":100296,"src":"attr"},{"ko":"통학·생활 편의 관련 이유","zh":"通勤或日常便利相关原因","en":"Commuting or daily convenience","pos":100537,"src":"attr"},{"ko":"경제적 이유(학비 포함)","zh":"经济原因（包括学费）","en":"Financial reasons (including tuition)","pos":100785,"src":"attr"},{"ko":"한국 공교육 진학 희망","zh":"希望进入韩国公立教育","en":"Wish to enter Korean public education","pos":101031,"src":"attr"},{"ko":"개인 또는 가정 사정","zh":"个人或家庭原因","en":"Personal or family circumstances","pos":101283,"src":"attr"},{"ko":"기타","zh":"其他","en":"Other","pos":101496,"src":"attr"},{"ko":"세부 요인을 선택해 주세요 (복수 선택 가능):","zh":"请选择具体因素（可多选）：","en":"Please select the specific factors:","pos":101744,"src":"attr"},{"ko":"4. 환불 신청 정보","zh":"4. 退款申请信息","en":"4. Refund Application","pos":102484,"src":"attr"},{"ko":"모든 가족이 함께 살기를 원함","zh":"希望全家共同居住","en":"Wish for the whole family to live together","pos":173366,"src":"detail_labels"},{"ko":"부모님 직장 발령 또는 사업상 이주","zh":"父母工作调动或业务迁移","en":"Parent's job transfer or business relocation","pos":173464,"src":"detail_labels"},{"ko":"장거리 통학 등 생활 여건의 어려움","zh":"长途上学等生活条件困难","en":"Difficulties due to long-distance commuting to school","pos":173565,"src":"detail_labels"},{"ko":"제주 외 지역으로 가족 이사","zh":"全家迁往济州岛以外地区","en":"Family moving to another region (outside Jeju)","pos":173675,"src":"detail_labels"},{"ko":"가족과 함께 거주하기 위해","zh":"为与家人共同居住","en":"To live together as a family","pos":173782,"src":"detail_labels"},{"ko":"부모 직장 이동","zh":"父母工作调动","en":"Parent's job relocation","pos":173856,"src":"detail_labels"},{"ko":"국내 이사","zh":"国内搬迁","en":"Domestic relocation","pos":173928,"src":"detail_labels"},{"ko":"해외 이주/본국으로 귀국","zh":"移居海外/回国","en":"Overseas relocation / return to home country","pos":173996,"src":"detail_labels"},{"ko":"보다 높은 학업 수준","zh":"更高学业水准","en":"Higher academic standards","pos":174162,"src":"detail_labels"},{"ko":"대학 진학 준비","zh":"大学升学准备","en":"University preparation","pos":174235,"src":"detail_labels"},{"ko":"새로운 교육 시스템 경험","zh":"体验新教育体系","en":"New education system experience","pos":174307,"src":"detail_labels"},{"ko":"자녀에게 더 적합한 교육방식","zh":"更适合孩子的教育方式","en":"Better educational approach for the child","pos":174385,"src":"detail_labels"},{"ko":"영어 사용 기회 확대","zh":"更多英语使用机会","en":"More English-speaking opportunities","pos":174474,"src":"detail_labels"},{"ko":"영어 몰입 환경","zh":"英语沉浸式环境","en":"English immersion environment","pos":174559,"src":"detail_labels"},{"ko":"학교 규율 및 생활지도","zh":"学校纪律及生活指导","en":"School discipline and guidance","pos":174639,"src":"detail_labels"},{"ko":"학생 갈등/괴롭힘 대응","zh":"冲突/霸凌应对","en":"Response to conflict / bullying","pos":174794,"src":"detail_labels"},{"ko":"학교 정책 또는 운영방식","zh":"学校政策或运营方式","en":"School policy or operations","pos":174873,"src":"detail_labels"},{"ko":"학교 리더십 및 관리체계","zh":"学校领导力及管理体系","en":"School leadership and management","pos":175027,"src":"detail_labels"},{"ko":"남학생/여학생 비율","zh":"男女生比例","en":"Gender ratio","pos":175109,"src":"detail_labels"},{"ko":"친구 관계","zh":"友谊关系","en":"Friendships","pos":175168,"src":"detail_labels"},{"ko":"형제자매 또는 친구 재학","zh":"兄弟姐妹或朋友就读该校","en":"Sibling or friend at the school","pos":175229,"src":"detail_labels"},{"ko":"학생 건강","zh":"学生健康","en":"Student's health","pos":175377,"src":"detail_labels"},{"ko":"보호자 건강","zh":"监护人健康","en":"Guardian's health","pos":175443,"src":"detail_labels"},{"ko":"기숙사 생활 문제","zh":"宿舍生活问题","en":"Dormitory / boarding issues","pos":175512,"src":"detail_labels"},{"ko":"학비 부담","zh":"学费负担","en":"Tuition burden","pos":175588,"src":"detail_labels"},{"ko":"기타 경제적 사유","zh":"其他经济原因","en":"Other financial reasons","pos":175652,"src":"detail_labels"},{"ko":"한국 대학 진학 준비","zh":"韩国大学升学准备","en":"Korean university preparation","pos":175798,"src":"detail_labels"},{"ko":"한국 공교육 경험","zh":"韩国公立教育体验","en":"Korean public education experience","pos":175877,"src":"detail_labels"},{"ko":"기타 개인 사유","zh":"其他个人原因","en":"Other personal reasons","pos":175962,"src":"detail_labels"},{"ko":"퇴교 예정일을 입력해 주세요.","zh":"请输入退学日期。","en":"Please enter the withdrawal date.","pos":169922,"src":"inline"},{"ko":"학생의 향후 진로를 선택해 주세요.","zh":"请选择学生下一步的教育计划。","en":"Please select the next path.","pos":170101,"src":"inline"},{"ko":"퇴교의 가장 큰 이유를 선택해 주세요.","zh":"请选择退学主要原因。","en":"Please select the main reason for withdrawal.","pos":170291,"src":"inline"},{"ko":"퇴교 예정일","zh":"退学日期","en":"Withdrawal date","pos":181739,"src":"inline"}]},{"key":"refund","title":"4. Refund Application","items":[{"ko":"이미 납부하신 학비에 대한 환불을 신청하시겠습니까?","zh":"是否申请退还已缴纳的学费？","en":"Would you like to request a refund for tuition already paid?","pos":102663,"src":"attr"},{"ko":"네, 환불을 신청합니다","zh":"是，我申请退款","en":"YES — I would like to request a refund","pos":103044,"src":"attr"},{"ko":"아니오, 환불을 신청하지 않습니다","zh":"否，我不申请退款","en":"NO — I am not requesting a refund","pos":103299,"src":"attr"},{"ko":"ℹ️ 환불 정책","zh":"ℹ️ 退款政策","en":"ℹ️ Refund Policy","pos":103675,"src":"attr"},{"ko":"환불 정책 원문 보기","zh":"查看退款政策原文","en":"View Full Refund Policy","pos":104120,"src":"attr"},{"ko":"환불 정책 내용을 이해하고 동의합니다.","zh":"我已阅读并理解退款政策，并同意该政策。","en":"I have read and understood the refund policy and agree to it.","pos":104564,"src":"attr"},{"ko":"동의하시기 전에 위 환불 정책 원문을 먼저 확인해 주시기 바랍니다.","zh":"请在同意之前，先查看上方的退款政策原文。","en":"Please review the refund policy above before agreeing.","pos":104812,"src":"attr"},{"ko":"환불 계좌 정보","zh":"退款账户信息","en":"Refund Bank Information","pos":105278,"src":"attr"},{"ko":"학비 납부일","zh":"缴费日期","en":"Date of Payment","pos":105506,"src":"attr"},{"ko":"학교에 학비를 납부하신 날짜를 입력해 주세요. 여러 번 나누어 납부하신 경우 가장 최근 납부일을 입력해 주세요. 학교 측 납부 기록과 대조하는 데 사용됩니다.","zh":"请输入向学校缴纳学费的日期。如分多次缴纳，请填写最近一次的缴费日期。该信息用于与学校缴费记录核对。","en":"Please enter the date you paid tuition to the school. If you paid in multiple installments, enter the most recent payment date. This is used to verify against the school's payment records.","pos":105631,"src":"attr"},{"ko":"환불 방식","zh":"退款方式","en":"Refund Method","pos":106259,"src":"attr"},{"ko":"전액 원화(KRW) 계좌로 환급받겠습니다","zh":"全额退款至韩元（KRW）账户","en":"Full refund into a KRW (Korean domestic) account","pos":106513,"src":"attr"},{"ko":"납부하신 방식대로 원화(KRW)·외화(USD)로 나누어 환급받겠습니다","zh":"按缴费方式，分别退还至韩元（KRW）和美元（USD）账户","en":"Split refund into KRW and USD accounts, matching how tuition was paid","pos":106779,"src":"attr"},{"ko":"전액 해외(USD) 계좌로 환급받겠습니다","zh":"全额退款至美元（USD）海外账户","en":"Full refund into a USD (foreign) account","pos":107115,"src":"attr"},{"ko":"KRW 계좌 정보","zh":"韩元账户信息","en":"KRW Account Information","pos":107357,"src":"attr"},{"ko":"은행명","zh":"银行名称","en":"Bank Name","pos":107579,"src":"attr"},{"ko":"계좌번호","zh":"账号","en":"Account No.","pos":107813,"src":"attr"},{"ko":"예금주 한글이름","zh":"账户持有人姓名（韩文）","en":"Account Holder's Name (KRW)","pos":108050,"src":"attr"},{"ko":"ℹ️ 추가 안내사항 (학비 외 비용 환불 문의)","zh":"ℹ️ 其他说明（学费以外费用退款咨询）","en":"ℹ️ Additional Notices (Non-Tuition Fee Refund Inquiries)","pos":108457,"src":"attr"},{"ko":"구분","zh":"类别","en":"Category","pos":108863,"src":"attr"},{"ko":"담당 · 연락처","zh":"负责方 · 联系方式","en":"Contact","pos":109111,"src":"attr"},{"ko":"급식비","zh":"餐费","en":"School Meal","pos":109452,"src":"attr"},{"ko":"스쿨버스","zh":"校车","en":"School Bus","pos":109948,"src":"attr"},{"ko":"도서 반납 확인","zh":"确认图书归还","en":"Check Book Return","pos":110871,"src":"attr"},{"ko":"기기·소프트웨어 반납 확인","zh":"确认设备及软件归还","en":"Check Device / Software Return","pos":111378,"src":"attr"},{"ko":"<strong>참고</strong>: 도서관 미반납 도서나 학교 IT 기기·소프트웨어 반납이 완료되지 않은 경우 환불 절차가 지연될 수 있습니다.","zh":"<strong>提示</strong>：如有图书馆未归还图书或学校IT设备·软件未清空，退款流程可能会延迟。","en":"<strong>Note</strong>: Refunds may be delayed if there are unreturned library books or school IT devices/software not yet cleared.","pos":111844,"src":"attr"},{"ko":"USD 계좌 정보","zh":"美元账户信息","en":"USD Account Information","pos":112482,"src":"attr"},{"ko":"은행 국가","zh":"银行所在国家","en":"Bank Country","pos":112950,"src":"attr"},{"ko":"SWIFT 코드","zh":"SWIFT代码","en":"Swift Code","pos":113481,"src":"attr"},{"ko":"예금주 영문이름","zh":"账户持有人姓名（英文）","en":"Account Holder's Name (USD)","pos":113820,"src":"attr"},{"ko":"예금주 주소","zh":"账户持有人地址","en":"Address of Account Holder","pos":114120,"src":"attr"},{"ko":"예금주명","zh":"账户持有人姓名","en":"Account Holder's Name","pos":115603,"src":"attr"},{"ko":"5. 추가 설문","zh":"5. 补充问卷","en":"5. Additional Survey","pos":116214,"src":"attr"},{"ko":"환불 신청 여부를 선택해 주세요.","zh":"请选择是否申请退款。","en":"Please select whether you would like to request a refund.","pos":170598,"src":"inline"},{"ko":"환불규정에 동의해 주세요.","zh":"请先同意退款政策。","en":"Please agree to the refund policy before proceeding.","pos":170844,"src":"inline"},{"ko":"학비 납부일을 입력해 주세요.","zh":"请输入缴费日期。","en":"Please enter the date of payment.","pos":171039,"src":"inline"},{"ko":"환불 방식을 선택해 주세요.","zh":"请选择退款方式。","en":"Please select a refund method.","pos":171280,"src":"inline"},{"ko":"국내(KRW) 계좌 정보를 입력해 주세요.","zh":"请填写国内（韩元）账户信息。","en":"Please complete the KRW bank account information.","pos":171666,"src":"inline"},{"ko":"USD 계좌 정보를 입력해 주세요.","zh":"请填写美元账户信息。","en":"Please complete the USD bank account information.","pos":172263,"src":"inline"},{"ko":"해외 계좌 정보를 모두 입력해 주세요.","zh":"请填写所有海外账户信息。","en":"Please complete all foreign bank account fields.","pos":172865,"src":"inline"}]},{"key":"feedback","title":"5. Additional Survey","items":[{"ko":"전학 예정 학교를 선택한 주요 이유는 무엇입니까? (최대 3개 선택)","zh":"选择下一所学校的主要原因？（最多选3项）","en":"What are your main reasons for choosing the next school? (Select up to 3)","pos":116422,"src":"attr"},{"ko":"영어 사용 환경","zh":"英语使用环境","en":"English-speaking environment","pos":116859,"src":"attr"},{"ko":"학업 수준","zh":"学业水准","en":"Academic standards","pos":117082,"src":"attr"},{"ko":"AP/IGCSE 등 교육과정","zh":"课程体系（AP/IGCSE等）","en":"Curriculum (AP/IGCSE, etc.)","pos":117296,"src":"attr"},{"ko":"대학 진학 실적","zh":"大学升学实绩","en":"University placement record","pos":117550,"src":"attr"},{"ko":"학생 생활지도 및 규율","zh":"学生生活指导及纪律","en":"Student guidance and discipline","pos":117783,"src":"attr"},{"ko":"학생 안전 관리","zh":"学生安全管理","en":"Student safety management","pos":118016,"src":"attr"},{"ko":"학교 분위기","zh":"学校氛围","en":"School atmosphere","pos":118235,"src":"attr"},{"ko":"형제자매 재학","zh":"兄弟姐妹就读该学校","en":"Sibling attending the school","pos":118444,"src":"attr"},{"ko":"친구 재학","zh":"朋友就读该学校","en":"Friend attending the school","pos":118670,"src":"attr"},{"ko":"남녀 성비","zh":"男女比例","en":"Gender ratio","pos":118881,"src":"attr"},{"ko":"스포츠 프로그램","zh":"体育项目","en":"Sports programs","pos":119077,"src":"attr"},{"ko":"예체능 프로그램","zh":"艺体项目","en":"Arts programs","pos":119280,"src":"attr"},{"ko":"방과후 프로그램","zh":"课后项目","en":"After-school programs","pos":119489,"src":"attr"},{"ko":"시설 및 캠퍼스 환경","zh":"设施及校园环境","en":"Facilities and campus","pos":119704,"src":"attr"},{"ko":"통학 편의성","zh":"上学便利性","en":"Commuting convenience","pos":119930,"src":"attr"},{"ko":"기숙사","zh":"宿舍","en":"Dormitory / boarding","pos":120132,"src":"attr"},{"ko":"학비","zh":"学费","en":"Tuition fees","pos":120327,"src":"attr"},{"ko":"한국어 교육","zh":"韩语教育","en":"Korean language education","pos":120525,"src":"attr"},{"ko":"다음 중 BHA가 개선되었다면 재고(재등록)를 고려했을 가능성이 있는 항목을 선택해 주십시오:","zh":"如果以下哪些方面得到改善，您可能会重新考虑留在BHA？","en":"Which areas, if improved, might have led you to reconsider leaving BHA?","pos":121373,"src":"attr"},{"ko":"교육과정 다양성","zh":"课程多样性","en":"Curriculum diversity","pos":121982,"src":"attr"},{"ko":"AP/IGCSE 등 교육과정","zh":"AP/IGCSE等课程","en":"Curriculum (AP/IGCSE, etc.)","pos":122190,"src":"attr"},{"ko":"학생 생활지도","zh":"学生生活指导","en":"Student life guidance","pos":122426,"src":"attr"},{"ko":"학생 갈등 대응","zh":"学生冲突应对","en":"Student conflict resolution","pos":122848,"src":"attr"},{"ko":"학교 규율","zh":"学校纪律","en":"School discipline","pos":123066,"src":"attr"},{"ko":"교사 전문성","zh":"教师专业素质","en":"Teacher expertise","pos":123266,"src":"attr"},{"ko":"학교 운영 및 의사소통","zh":"学校运营及沟通","en":"School operations and communication","pos":123486,"src":"attr"},{"ko":"또래 환경","zh":"同伴环境","en":"Peer environment","pos":123910,"src":"attr"},{"ko":"해당 없음","zh":"以上均不适用","en":"None of the above","pos":125101,"src":"attr"},{"ko":"BHA에서 가장 만족했던 점은 무엇입니까?","zh":"您对BHA最满意的地方是什么？","en":"What did you appreciate most about BHA?","pos":125959,"src":"attr"},{"ko":"BHA가 가장 개선해야 할 점은 무엇이라고 생각하십니까?","zh":"您认为BHA最需要改进的地方是什么？","en":"What do you think BHA should improve most?","pos":126471,"src":"attr"},{"ko":"6. 전학 예정 정보","zh":"6. 转学信息","en":"6. Transfer Information","pos":126964,"src":"attr"},{"ko":"최대 3개까지만 선택 가능합니다.","zh":"最多只能选择3项。","en":"Please select up to 3 options only.","pos":180284,"src":"inline"}]},{"key":"transfer","title":"6. Transfer Information","items":[{"ko":"전학 예정 학교명","zh":"转学学校名称","en":"Destination School","pos":127143,"src":"attr"},{"ko":"전학 예정 지역 (국가/위치)","zh":"国家/地区","en":"Country/Location","pos":127960,"src":"attr"},{"ko":"도시","zh":"城市","en":"City","pos":128372,"src":"attr"},{"ko":"입학 예정일","zh":"入学预定日期","en":"Next School Start Date","pos":128745,"src":"attr"},{"ko":"📋 동의 및 확인","zh":"📋 同意与确认","en":"📋 Consent & Agreement","pos":129149,"src":"attr"},{"ko":"✏ 목록에 없으면 직접 입력","zh":"✏ 不在列表中？请手动输入","en":"✏ Not in list? Enter manually","pos":163966,"src":"inline"},{"ko":"예: 한국, 미국, 호주","zh":"如：韩国、美国、澳大利亚","en":"e.g. Korea, USA, Australia","pos":164356,"src":"inline"},{"ko":"예: 서울, 뉴욕","zh":"如：首尔、纽约","en":"e.g. Seoul, New York","pos":164467,"src":"inline"},{"ko":"전학 예정 학교명을 입력해 주세요.","zh":"请输入转学学校名称。","en":"Please enter the destination school.","pos":169528,"src":"inline"},{"ko":"입학 예정일을 입력해 주세요.","zh":"请输入入学预定日期。","en":"Please enter the next school start date.","pos":169707,"src":"inline"},{"ko":"전학 예정 학교명","zh":"转学学校","en":"Destination school","pos":181819,"src":"inline"}]},{"key":"submit","title":"7. Consent & Submit","items":[{"ko":"본인은 자녀의 BHA 퇴교에 동의하며, 제출한 모든 정보가 정확하고 완전함을 확인합니다. 본인은 학교의 퇴교 절차 및 환불 정책의 모든 조건에 동의하며, 이 신청서 제출 즉시 자녀의 자리가 대기자 명단의 다른 학생에게 제공될 수 있음을 이해합니다.","zh":"本人同意子女从BHA退学，并确认本申请表中提供的所有信息准确完整。本人理解并同意学校注销和退款政策的所有条款，并理解提交本表格后，子女的名额将立即提供给候补名单上的其他学生。","en":"I/we hereby consent to the withdrawal of my/our child from Branksome Hall Asia and confirm that all information provided in this application is accurate and complete. I/we understand and agree with all the terms and conditions of the school's de-registration and the refund policy and that, immediately effective, upon signing and submission of this form, my child's seat will be offered to a new student on the waiting list.","pos":129304,"src":"attr"},{"ko":"위 내용에 동의합니다. 본 전자 제출은 서명을 대신합니다.","zh":"我同意以上内容。本电子提交代替签名。","en":"I agree to the above. This electronic submission serves as my signature.","pos":130387,"src":"attr"},{"ko":"⏳ 제출 중입니다. 잠시만 기다려 주세요...","zh":"⏳ 提交中，请稍候...","en":"⏳ Submitting, please wait...","pos":130621,"src":"attr"},{"ko":"신청서 제출하기","zh":"提交申请","en":"Submit Application","pos":130951,"src":"attr"},{"ko":"← 이전","zh":"← 返回","en":"← Back","pos":131490,"src":"attr"},{"ko":"다음 →","zh":"下一步 →","en":"Next →","pos":132115,"src":"attr"},{"ko":"제출 전 동의 항목에 체크해 주세요.","zh":"提交前请勾选同意条款。","en":"Please agree to the consent statement before submitting.","pos":173122,"src":"inline"},{"ko":"동의 항목에 체크해 주세요.","zh":"请勾选同意条款。","en":"Please agree to the consent statement.","pos":182318,"src":"inline"},{"ko":"제출 중 오류가 발생했습니다. 다시 시도해 주세요.","zh":"提交失败，请重试。","en":"Submission error. Please try again.","pos":187346,"src":"inline"}]},{"key":"success","title":"8. Confirmation Screen","items":[{"ko":"다른 자녀 신청하기","zh":"为其他子女申请","en":"Submit for another child","pos":188106,"src":"inline"},{"ko":"신청서가 접수되었습니다.","zh":"申请已成功提交。","en":"Your application has been submitted.","pos":188532,"src":"inline"},{"ko":"퇴교 신청이 정상적으로 접수되었습니다.<br><br>","zh":"您的退学申请已收到。<br><br>","en":"Your withdrawal application has been received.<br><br>","pos":188692,"src":"inline"},{"ko":"문의: ","zh":"如有疑问，请联系：","en":"Questions? ","pos":188826,"src":"inline"},{"ko":"ℹ️ 함께 필요하신가요?","zh":"ℹ️ 是否还需要以下服务？","en":"ℹ️ Also Needed?","pos":189216,"src":"inline"},{"ko":"재학(졸업)증명서/리포트 카드/추천서/기타 학적 서류 신청","zh":"在读（毕业）证明/成绩单/推荐信/其他学籍档案申请","en":"Certificate of Enrollment (Graduation) / Report Card / Recommendation / Other Academic Records Requests","pos":189317,"src":"inline"},{"ko":"학적 서류 및 추천서 발급 신청서 →","zh":"学籍档案及推荐信申请表 →","en":"Academic Records &amp; Recommendation Application →","pos":189757,"src":"inline"},{"ko":"문의: ","zh":"咨询：","en":"Inquiries: ","pos":189926,"src":"inline"},{"ko":"Official Transcript 발급 신청","zh":"Official Transcript 申请","en":"Official Transcript Request","pos":190049,"src":"inline"},{"ko":"새 신청서 제출","zh":"提交新申请","en":"Submit New Application","pos":190779,"src":"inline"},{"ko":"모든 내용을 지우고 처음부터 다시 시작할까요?","zh":"清除所有内容并重新开始？","en":"Clear all entries and start over?","pos":193255,"src":"inline"}]},{"key":"system","title":"Common System Messages (Errors & Alerts)","items":[{"ko":"파일 크기는 10MB 이하여야 합니다.","zh":"文件大小必须在10MB以内。","en":"File must be under 10MB.","pos":164976,"src":"inline"},{"ko":"단계","zh":"步骤","en":"Step","pos":168929,"src":"inline"},{"ko":"을(를) 입력해 주세요.","zh":"为必填项。","en":" is required.","pos":182148,"src":"inline"}]}];
+var STORAGE_KEY = 'bha_withdrawal_zh_review_v1';
+
+var edits = {}; // key -> new zh text (only when different from original)
+var currentStep = 0;
+
+function keyFor(stepKey, i){ return stepKey + '::' + i; }
+
+function totalEditedCount(){ return Object.keys(edits).length; }
+
+function loadSavedEdits(){
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) edits = JSON.parse(raw) || {};
+  } catch(e) { edits = {}; }
+}
+function persistEdits(){
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(edits)); } catch(e) {}
+}
+
+function renderStepNav(){
+  var nav = document.getElementById('stepNav');
+  nav.innerHTML = '';
+  STEPS.forEach(function(s, idx){
+    var editedInStep = s.items.filter(function(it, i){ return edits[keyFor(s.key, i)] !== undefined; }).length;
+    var tab = document.createElement('div');
+    tab.className = 'step-tab' + (idx === currentStep ? ' active' : '');
+    tab.innerHTML = '<span>' + s.title + '</span>' + (editedInStep ? '<span class="badge">' + editedInStep + '</span>' : '');
+    tab.onclick = function(){ currentStep = idx; renderAll(); window.scrollTo({top:0, behavior:'smooth'}); };
+    nav.appendChild(tab);
+  });
+}
+
+function autosize(ta){
+  ta.style.height = 'auto';
+  ta.style.height = (ta.scrollHeight) + 'px';
+}
+
+function renderStep(){
+  var s = STEPS[currentStep];
+  document.getElementById('stepTitle').textContent = s.title;
+  var editedInStep = s.items.filter(function(it, i){ return edits[keyFor(s.key, i)] !== undefined; }).length;
+  document.getElementById('stepCount').textContent = s.items.length + ' phrase' + (s.items.length === 1 ? '' : 's') + (editedInStep ? ' · ' + editedInStep + ' edited' : '');
+  document.getElementById('stepNote').textContent = s.items.length
+    ? 'Click into any Chinese text box to edit it directly. Edited items are marked with a green bar on the left.'
+    : '';
+
+  var list = document.getElementById('cardList');
+  list.innerHTML = '';
+  if (!s.items.length) {
+    list.innerHTML = '<div class="empty-state">No text to review in this step.</div>';
+    return;
+  }
+  s.items.forEach(function(item, i){
+    var k = keyFor(s.key, i);
+    var isEdited = edits[k] !== undefined;
+    var card = document.createElement('div');
+    card.className = 'card' + (isEdited ? ' edited' : '');
+    card.innerHTML =
+      '<div class="rail"></div>' +
+      '<div class="card-body">' +
+        (item.en ? '<p class="ref-en">' + escapeHtml(item.en) + '</p>' : '') +
+        '<div class="zh-row">' +
+          '<textarea class="zh-input zh" rows="1" data-key="' + k + '"></textarea>' +
+          '<button class="reset-btn" title="Revert to original">↺</button>' +
+        '</div>' +
+      '</div>';
+    var ta = card.querySelector('textarea');
+    ta.value = isEdited ? edits[k] : item.zh;
+    var resetBtn = card.querySelector('.reset-btn');
+    ta.addEventListener('input', function(){
+      autosize(ta);
+      if (ta.value === item.zh) {
+        delete edits[k];
+        card.classList.remove('edited');
+      } else {
+        edits[k] = ta.value;
+        card.classList.add('edited');
+      }
+      persistEdits();
+      updateCounters();
+    });
+    resetBtn.addEventListener('click', function(){
+      ta.value = item.zh;
+      delete edits[k];
+      card.classList.remove('edited');
+      autosize(ta);
+      persistEdits();
+      updateCounters();
+    });
+    list.appendChild(card);
+    autosize(ta);
+  });
+}
+
+function escapeHtml(s){
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function updateCounters(){
+  document.getElementById('editedCount').textContent = totalEditedCount();
+  renderStepNav();
+  var s = STEPS[currentStep];
+  var editedInStep = s.items.filter(function(it, i){ return edits[keyFor(s.key, i)] !== undefined; }).length;
+  document.getElementById('stepCount').textContent = s.items.length + ' phrase' + (s.items.length === 1 ? '' : 's') + (editedInStep ? ' · ' + editedInStep + ' edited' : '');
+  document.getElementById('bbStatus').innerHTML = totalEditedCount()
+    ? 'You have edited <b>' + totalEditedCount() + '</b> phrase' + (totalEditedCount() === 1 ? '' : 's') + ' so far.'
+    : 'No edits yet.';
+}
+
+function renderAll(){
+  renderStepNav();
+  renderStep();
+  document.getElementById('prevBtn').disabled = currentStep === 0;
+  document.getElementById('nextBtn').disabled = currentStep === STEPS.length - 1;
+  updateCounters();
+}
+
+document.getElementById('prevBtn').onclick = function(){ if (currentStep > 0) { currentStep--; renderAll(); window.scrollTo({top:0, behavior:'smooth'}); } };
+document.getElementById('nextBtn').onclick = function(){ if (currentStep < STEPS.length - 1) { currentStep++; renderAll(); window.scrollTo({top:0, behavior:'smooth'}); } };
+
+function buildResultText(){
+  var lines = [];
+  STEPS.forEach(function(s){
+    var stepEdits = [];
+    s.items.forEach(function(item, i){
+      var k = keyFor(s.key, i);
+      if (edits[k] !== undefined) stepEdits.push('EN: ' + item.en + '\n  Original: ' + item.zh + '\n  Suggested: ' + edits[k]);
+    });
+    if (stepEdits.length) {
+      lines.push('■ ' + s.title);
+      lines.push(stepEdits.join('\n\n'));
+      lines.push('');
+    }
+  });
+  return lines.length ? lines.join('\n') : '(No edits yet)';
+}
+
+document.getElementById('copyBtn').onclick = function(){
+  var text = buildResultText();
+  document.getElementById('resultText').value = text;
+  document.getElementById('modalHint').textContent = totalEditedCount()
+    ? totalEditedCount() + ' edited phrase' + (totalEditedCount() === 1 ? '' : 's') + '. Copy the text below and send it back.'
+    : 'No edits yet. Review the phrases above, then click this button again once you\'re done.';
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('copiedFlag').classList.remove('show');
+};
+document.getElementById('closeModal').onclick = function(){ document.getElementById('overlay').classList.remove('show'); };
+document.getElementById('overlay').onclick = function(e){ if (e.target === document.getElementById('overlay')) document.getElementById('overlay').classList.remove('show'); };
+
+document.getElementById('copyToClipboard').onclick = function(){
+  var ta = document.getElementById('resultText');
+  ta.select();
+  var done = function(){
+    var flag = document.getElementById('copiedFlag');
+    flag.classList.add('show');
+    setTimeout(function(){ flag.classList.remove('show'); }, 2000);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(ta.value).then(done).catch(function(){
+      try { document.execCommand('copy'); done(); } catch(e) {}
+    });
+  } else {
+    try { document.execCommand('copy'); done(); } catch(e) {}
+  }
+};
+
+loadSavedEdits();
+var restoredCount = totalEditedCount();
+if (restoredCount > 0) {
+  var banner = document.getElementById('restoreBanner');
+  banner.textContent = 'Welcome back — restored ' + restoredCount + ' edited phrase' + (restoredCount === 1 ? '' : 's') + ' from your last visit on this device.';
+  banner.classList.add('show');
+}
+document.getElementById('clearLink').onclick = function(){
+  if (!confirm('Clear all saved edits on this device? This cannot be undone.')) return;
+  edits = {};
+  persistEdits();
+  document.getElementById('restoreBanner').classList.remove('show');
+  renderAll();
+};
+
+renderAll();
+</script>
+</body></html>
