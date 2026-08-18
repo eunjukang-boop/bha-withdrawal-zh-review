@@ -54,14 +54,27 @@
   .restore-banner.show{ display:block; }
 
   /* ── Step tabs ── */
-  nav.steps{
+  .steps-wrap{
     position:sticky; top:0; z-index:5;
     background:var(--surface); border-bottom:1px solid var(--border);
-    display:flex; gap:4px; overflow-x:auto; padding:8px 16px;
-    scrollbar-width:thin;
+    display:flex; align-items:stretch;
+  }
+  nav.steps{
+    flex:1; min-width:0;
+    display:flex; gap:4px; overflow-x:auto; padding:8px 8px;
+    scrollbar-width:thin; scroll-behavior:smooth;
   }
   nav.steps::-webkit-scrollbar{ height:5px; }
   nav.steps::-webkit-scrollbar-thumb{ background:var(--border); border-radius:4px; }
+  .steps-arrow{
+    flex-shrink:0; width:34px; border:none; background:var(--surface);
+    color:var(--accent); font-size:20px; font-weight:700; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .steps-arrow:hover{ background:var(--surface-alt); }
+  .steps-arrow.left{ border-right:1px solid var(--border); }
+  .steps-arrow.right{ border-left:1px solid var(--border); }
+  .steps-arrow:disabled{ opacity:.3; cursor:default; background:var(--surface); }
   .step-tab{
     flex-shrink:0; display:flex; align-items:center; gap:6px;
     padding:8px 13px; border-radius:8px; border:1px solid transparent;
@@ -176,7 +189,11 @@
   <p class="restore-banner" id="restoreBanner"></p>
 </header>
 
-<nav class="steps" id="stepNav"></nav>
+<div class="steps-wrap">
+  <button class="steps-arrow left" id="stepsArrowLeft" aria-label="Scroll steps left">‹</button>
+  <nav class="steps" id="stepNav"></nav>
+  <button class="steps-arrow right" id="stepsArrowRight" aria-label="Scroll steps right">›</button>
+</div>
 
 <main>
   <div class="step-heading">
@@ -247,6 +264,18 @@ function renderStepNav(){
     tab.onclick = function(){ currentStep = idx; renderAll(); window.scrollTo({top:0, behavior:'smooth'}); };
     nav.appendChild(tab);
   });
+  var activeTab = nav.children[currentStep];
+  if (activeTab) activeTab.scrollIntoView({ block: 'nearest', inline: 'center' });
+  updateStepsArrows();
+}
+
+function updateStepsArrows(){
+  var nav = document.getElementById('stepNav');
+  var left = document.getElementById('stepsArrowLeft');
+  var right = document.getElementById('stepsArrowRight');
+  if (!nav || !left || !right) return;
+  left.disabled = nav.scrollLeft <= 2;
+  right.disabled = nav.scrollLeft + nav.clientWidth >= nav.scrollWidth - 2;
 }
 
 function autosize(ta){
@@ -424,6 +453,15 @@ document.getElementById('clearLink').onclick = function(){
   document.getElementById('restoreBanner').classList.remove('show');
   renderAll();
 };
+
+document.getElementById('stepsArrowLeft').onclick = function(){
+  document.getElementById('stepNav').scrollBy({ left: -160, behavior: 'smooth' });
+};
+document.getElementById('stepsArrowRight').onclick = function(){
+  document.getElementById('stepNav').scrollBy({ left: 160, behavior: 'smooth' });
+};
+document.getElementById('stepNav').addEventListener('scroll', updateStepsArrows);
+window.addEventListener('resize', updateStepsArrows);
 
 renderAll();
 </script>
