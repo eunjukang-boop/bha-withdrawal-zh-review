@@ -194,14 +194,14 @@
       <button class="btn" id="nextBtn">Next →</button>
     </div>
     <div class="bb-status" id="bbStatus"></div>
-    <button class="btn primary" id="copyBtn">Copy Suggested Edits</button>
+    <button class="btn primary" id="copyBtn">Submit My Edits</button>
   </div>
 </div>
 
 <div class="overlay" id="overlay">
   <div class="modal">
     <div class="modal-hd">
-      <h3>Suggested Edits</h3>
+      <h3 id="modalTitle">Submit Review</h3>
       <button class="modal-close" id="closeModal">✕</button>
     </div>
     <div class="modal-body">
@@ -210,7 +210,7 @@
     </div>
     <div class="modal-ft">
       <span class="copied-flag" id="copiedFlag">✓ Copied to clipboard</span>
-      <button class="btn primary" id="copyToClipboard">Copy to Clipboard</button>
+      <button class="btn" id="copyToClipboard">Also Copy to Clipboard</button>
     </div>
   </div>
 </div>
@@ -337,26 +337,32 @@ function renderAll(){
 document.getElementById('prevBtn').onclick = function(){ if (currentStep > 0) { currentStep--; renderAll(); window.scrollTo({top:0, behavior:'smooth'}); } };
 document.getElementById('nextBtn').onclick = function(){ if (currentStep < STEPS.length - 1) { currentStep++; renderAll(); window.scrollTo({top:0, behavior:'smooth'}); } };
 
-function buildResultText(){
-  var lines = [];
+var SUBMIT_URL = 'https://script.google.com/a/macros/branksome.asia/s/AKfycbwsFhpjV4FsQUefWnocyAcv93cuXKM2Z_AUPFAk3ucyCRzKjQr72DNoAQeGEGtwE__hJw/exec';
+
+function collectEditsList(){
+  var list = [];
   STEPS.forEach(function(s){
-    var stepEdits = [];
     s.items.forEach(function(item, i){
       var k = keyFor(s.key, i);
-      if (edits[k] !== undefined) stepEdits.push('EN: ' + item.en + '\n  Original: ' + item.zh + '\n  Suggested: ' + edits[k]);
+      if (edits[k] !== undefined) list.push({ step: s.title, en: item.en, original: item.zh, suggested: edits[k] });
     });
-    if (stepEdits.length) {
-      lines.push('■ ' + s.title);
-      lines.push(stepEdits.join('\n\n'));
-      lines.push('');
-    }
   });
-  return lines.length ? lines.join('\n') : '(No edits yet)';
+  return list;
+}
+
+function buildResultText(list){
+  if (!list.length) return '(No edits yet)';
+  var lines = [];
+  var lastStep = null;
+  list.forEach(function(ed){
+    if (ed.step !== lastStep) { lines.push('■ ' + ed.step); lastStep = ed.step; }
+    lines.push('EN: ' + ed.en + '\n  Original: ' + ed.original + '\n  Suggested: ' + ed.suggested + '\n');
+  });
+  return lines.join('\n');
 }
 
 function copyTextToClipboard(text, onDone){
   var ta = document.getElementById('resultText');
-  ta.value = text;
   ta.select();
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(onDone).catch(function(){
@@ -370,18 +376,27 @@ function copyTextToClipboard(text, onDone){
 }
 
 document.getElementById('copyBtn').onclick = function(){
-  var text = buildResultText();
+  var list = collectEditsList();
+  var text = buildResultText(list);
   document.getElementById('resultText').value = text;
   document.getElementById('overlay').classList.add('show');
-  copyTextToClipboard(text, function(){
-    document.getElementById('modalHint').textContent = totalEditedCount()
-      ? '✓ Copied to clipboard — ' + totalEditedCount() + ' edited phrase' + (totalEditedCount() === 1 ? '' : 's') + '. Paste it and send it back.'
-      : 'No edits yet. Review the phrases above, then click this button again once you\'re done.';
-    var flag = document.getElementById('copiedFlag');
-    if (totalEditedCount()) {
-      flag.classList.add('show');
-      setTimeout(function(){ flag.classList.remove('show'); }, 2000);
-    }
+
+  if (!list.length) {
+    document.getElementById('modalTitle').textContent = 'Submit Review';
+    document.getElementById('modalHint').textContent = 'No edits yet. Review the phrases above, then click this button again once you\'re done.';
+    return;
+  }
+
+  document.getElementById('modalTitle').textContent = 'Submitting…';
+  document.getElementById('modalHint').textContent = 'Sending your ' + list.length + ' edited phrase' + (list.length === 1 ? '' : 's') + ' to Student Records…';
+  fetch(SUBMIT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ action: 'zhReviewSubmit', edits: list })
+  }).catch(function(){ /* no-cors: errors aren't visible anyway */ }).then(function(){
+    document.getElementById('modalTitle').textContent = '✓ Submitted';
+    document.getElementById('modalHint').textContent = 'Thank you! Your ' + list.length + ' edited phrase' + (list.length === 1 ? '' : 's') + ' ' + (list.length === 1 ? 'has' : 'have') + ' been sent to Student Records. You can also copy the text below as a backup.';
   });
 };
 document.getElementById('closeModal').onclick = function(){ document.getElementById('overlay').classList.remove('show'); };
